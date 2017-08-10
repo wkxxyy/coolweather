@@ -5,6 +5,7 @@ import android.text.TextUtils;
 import com.coolweather.android.db.City;
 import com.coolweather.android.db.County;
 import com.coolweather.android.db.Province;
+import com.coolweather.android.gson.Weather;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
@@ -64,7 +65,7 @@ public class Utility {
                     JSONObject countyObject = allCounties.getJSONObject(i);
                     County county = new County();
                     county.setCountyName(countyObject.getString("name"));
-                    county.setWeatherId(countyObject.getString("weather"));
+                    county.setWeatherId(countyObject.getString("weather_id"));
                     county.setCityId(cityId);
                     county.save();
                 }
@@ -74,6 +75,18 @@ public class Utility {
             }
         }
         return false;
+    }
+
+    public static Weather handleWeatherResponse(String response){
+        try{//第一层里面有冒号就用对象取，全是{}就用数组取
+            JSONObject jsonObject=new JSONObject(response);//获取到里面所有有冒号的对象，虽然只有一个ob，冒号后面的是个对象
+            JSONArray jsonArray=jsonObject.getJSONArray("HeWeather");//选择名为Heweather对象里面的所有数组，虽然只有一个,里面全是{}包起来的。
+            String weatherContent=jsonArray.getJSONObject(0).toString();//又获取所有{}里面的第一个{}
+            return new Gson().fromJson(weatherContent,Weather.class);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return null;
     }
 
 }
